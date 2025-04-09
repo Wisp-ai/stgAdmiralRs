@@ -18,13 +18,22 @@ test('register', async ({ page }) => {
   await expect(page).toHaveURL('https://stg.admiralbet.rs/registration');
 });
 
-test('check error message in email input field', async ({ page }) => {
+test('check error message in email input field for invalid input', async ({ page }) => {
   await page.goto('https://stg.admiralbet.rs/registration');
-  await page.fill('id=email', 'test');
+  await page.fill('id=email', 'test.com');
   await page.locator('id=email').blur();
   await page.waitForSelector('.invalid-feedback.ng-star-inserted');
   await expect(page.locator('.invalid-feedback.ng-star-inserted').first()).toBeVisible();
   await expect(page.locator('.invalid-feedback.ng-star-inserted').first()).toHaveText('Email adresa nije validna');
+});
+test('check error message in email input field', async ({ page }) => {
+  await page.goto('https://stg.admiralbet.rs/registration');
+  await expect(page).toHaveURL('https://stg.admiralbet.rs/registration');
+  await page.fill('id=email', '');
+  await page.locator('id=email').blur();
+  await page.waitForSelector('.invalid-feedback.ng-star-inserted');
+  await expect(page.locator('.invalid-feedback.ng-star-inserted').first()).toBeVisible();
+  await expect(page.locator('.invalid-feedback.ng-star-inserted').first()).toHaveText('Obavezno polje.');
 });
 
 test('check error message in password input field', async ({ page }) => {
@@ -99,4 +108,29 @@ test('check error message in adress input field', async ({ page }) => {
   await page.locator('.invalid-feedback').nth(7).waitFor();
   await expect(page.locator('.invalid-feedback').nth(7)).toBeVisible();
   await expect(page.locator('.invalid-feedback').nth(7)).toHaveText('Obavezno polje.');
+});
+test('check error message in city input field', async ({ page }) => {
+  await page.goto('https://stg.admiralbet.rs/registration');
+  await expect(page).toHaveURL('https://stg.admiralbet.rs/registration');
+
+  const cityInput = page.getByRole('textbox', { name: 'Adresa *' });
+  await page.getByRole('textbox', { name: 'Adresa *' }).click();
+  await cityInput.fill('');
+  await cityInput.blur();
+
+  const cityError = page.locator('div:nth-child(7) > .invalid-feedback');
+  await expect(cityError).toBeVisible();
+  await expect(cityError).toHaveText('Obavezno polje.');
+});
+
+test('check error message in phone input field', async ({ page }) => {
+  await page.goto('https://stg.admiralbet.rs/registration');
+  await expect(page).toHaveURL('https://stg.admiralbet.rs/registration');
+  await page.fill('id=registrationDataMobileNumber', '1234');
+  await page.locator('id=registrationDataMobileNumber').blur();
+
+  const phoneError = page.getByText('Broj telefona mora imati');
+  await phoneError.waitFor({ state: 'visible' });
+  await expect(phoneError).toBeVisible();
+  await expect(phoneError).toHaveText('Broj telefona mora imati minimalno 8 brojeva');
 });
